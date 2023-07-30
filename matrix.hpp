@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <random>
 #include <string>
 #include <utility>
 #include <vector>
@@ -20,7 +21,7 @@ namespace nn {
 	class Mat {
 	public:
 		Mat() = default;
-		Mat(const unsigned r, const unsigned c) : rows(r), cols(c), elem(r*c) {}
+		Mat(const unsigned r, const unsigned c) : rows(r), cols(c), elem(r*c, F(0)) {}
 		Mat(const unsigned r, const unsigned c, const std::vector<F>& el) : 
 			rows(r), cols(c), elem(el) {}
 		Mat(const unsigned r, const unsigned c, std::vector<F>&& el) :
@@ -28,8 +29,12 @@ namespace nn {
 
 		Mat(const Mat& mat) = default;
 		Mat(Mat&& mat) : rows(mat.rows), cols(mat.cols), elem(std::move(mat.elem)) {}
+		Mat& operator=(const Mat& mat) = default;
+		Mat& operator=(Mat&& mat) = default; //TODO make sure it works as intended.
 
 		~Mat() = default;
+
+		static Mat Randn(const unsigned r, const unsigned c);
 
 		unsigned get_rows() const { return rows; }
 		unsigned get_cols() const { return cols; }
@@ -38,7 +43,7 @@ namespace nn {
 
 		Mat& reshape(const unsigned r, const unsigned c);
 		Mat& fill(F val);
-		Mat& transpose();
+		Mat transpose();
 
 		Mat& operator+=(const Mat& rhs)      ;
 		Mat  operator+ (const Mat& rhs) const;
@@ -68,6 +73,20 @@ namespace nn {
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	// IMPLEMENTATIONS
 
+
+	Mat Mat::Randn(const unsigned r, const unsigned c) {
+		Mat mat(r, c);
+		std::mt19937 gen(42);
+		std::normal_distribution<F> dist(0, 1);
+		for (unsigned i = 0; i < r; ++i) {
+			for (unsigned j = 0; j < c; ++j) {
+				mat.at(i, j) = dist(gen);
+			}
+		}
+		return mat;
+	}
+
+
 	Mat& Mat::reshape(const unsigned r, const unsigned c) {
 		//Make sure the total number of elements doesn't change.
 		NN_ASSERT(r*c == rows*cols);
@@ -83,19 +102,23 @@ namespace nn {
 	}
 
 
-	Mat& Mat::transpose() {
+	Mat Mat::transpose() {
 		std::vector<F> newelem(rows * cols);
 		for(int r = 0; r < rows; ++r) {
 			for (int c = 0; c < cols; ++c) {
-				newelem[c * cols + r] = elem[r * cols + c];
+				newelem[c * rows + r] = elem[r * cols + c];
 			}
 		}
+		/*
 		elem = std::move(newelem);
+		
 		//Swap rows and cols.
 		auto temp = rows;
 		rows = cols;
 		cols = temp;
 		return *this;
+		*/
+		return Mat(cols, rows, std::move(newelem));
 	}
 
 

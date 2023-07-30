@@ -55,12 +55,15 @@ void general_tests() {
 	(a*3).print(std::cout, "A*3", 1);
 	(a*b).print(std::cout, "A*B", 2);
 
+	nn::Mat random = nn::Mat::Randn(5, 6);
+	random.print(std::cout, "randn", 0);
+
 	std::cout << "End of general tests.\n" << std::endl;
 }
 
 int main() {
 	general_tests();
-		
+
 	test_operator_eqeq();
 	test_mat_prod();
 

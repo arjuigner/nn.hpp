@@ -1,1 +1,1 @@
-g++ main.cpp -o test.exe && test.exe
+g++ nn_tests.cpp -o test.exe && test.exe
