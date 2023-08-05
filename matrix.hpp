@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <assert.h>
 #include <iostream>
+#include <limits>
 #include <random>
 #include <string>
 #include <utility>
@@ -54,8 +55,12 @@ namespace nn {
 		bool operator==(const Mat& rhs) const;
 		bool operator!=(const Mat& rhs) const;
 
+		Mat block(const unsigned a, const unsigned b, const unsigned h, const unsigned w) const;
+		Mat col_argmax() const;
+
 		//name is the name of the matrix, indent is the number of tabs at the beginning of each line.
 		void print(std::ostream& s, const std::string& name, const unsigned indent) const;
+		void print_size(std::ostream& s, const std::string& name, const unsigned indent) const;
 
 	private:
 		unsigned rows;
@@ -188,6 +193,40 @@ namespace nn {
 	}
 
 
+	/*
+	Returns a block of the matrix.
+	Ideally it would return a view of the block, but this requires a change in the
+	way the class is structured. 
+	TODO : use shared pointer instead of vector and add members such as stride, begin, etc.
+	That would allow to return a new Mat object, but with a pointer to the same underlying data. 
+	*/
+	Mat Mat::block(const unsigned a, const unsigned b, const unsigned h, const unsigned w) const {
+		Mat r(h, w);
+		for (int i = 0; i < h; ++i) {
+			for (int j = 0; j < w; ++j) {
+				r.at(i, j) = this->at(a+i, b+j);
+			}
+		}
+		return r;
+	}
+
+
+	Mat Mat::col_argmax() const {
+		nn::Mat out(1, cols);
+		for (int j = 0; j < cols; ++j) {
+			out.at(0, j) = -1;
+			F max = std::numeric_limits<F>::lowest();
+			for (int i = 0; i < rows; ++i) {
+				if (this->at(i, j) > max) {
+					out.at(0, j) = i;
+					max = this->at(i, j);
+				}
+			}
+		}
+		return out;
+	}
+
+
 	void Mat::print(std::ostream& s, const std::string& name, const unsigned indent) const {
 		std::string ind = "";
 		for (int i = 0; i < indent; ++i) 
@@ -205,6 +244,21 @@ namespace nn {
 			s << '\n';
 		}
 		s << ind << "]\n"; 
+	}
+
+
+	void Mat::print_size(std::ostream& s, const std::string& name, const unsigned indent) const {
+		std::string ind = "";
+		for (int i = 0; i < indent; ++i) 
+			ind += _tab;
+
+		if (name != "") {
+			s << ind << name << " has size ";
+		} else {
+			s << "size ";
+		}
+
+		s << rows << 'x' << cols << '\n';
 	}
 
 

@@ -1,0 +1,1 @@
+g++ mnist.cpp -O2 -o test.exe && test.exe

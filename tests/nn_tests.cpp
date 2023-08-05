@@ -57,8 +57,8 @@ int main() {
 	x.print(std::cout, "X", 0);
 	y.print(std::cout, "Y", 0);
 
-	nn::NN net({2, 2, nn::act::SIGMOID, 1, nn::act::SIGMOID});
-	net.train(x, y, 30000, 1.0);
+	nn::NN net({2, 3, nn::act::SIGMOID, 1, nn::act::SIGMOID});
+	net.train(x, y, 100000, 1.0);
 	const nn::Mat pred = net(x);
 	pred.print(std::cout, "pred", 0);
 	y.print(std::cout, "Y", 0);

@@ -34,6 +34,7 @@ bool test_mat_prod() {
 	return pass;
 }
 
+
 void general_tests() {
 	std::cout << "General tests : " << std::endl;
 	nn::Mat a(2,2);
@@ -61,11 +62,20 @@ void general_tests() {
 	std::cout << "End of general tests.\n" << std::endl;
 }
 
+
+void test_block() {
+	std::cout << "Test block :" << std::endl;
+	nn::Mat a(3, 4, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
+	nn::Mat b = a.block(1, 1, 2, 3);
+	a.print(std::cout, "A", 0);
+	b.print(std::cout, "B", 0);
+}
+
+
 int main() {
 	general_tests();
-
 	test_operator_eqeq();
 	test_mat_prod();
-
+	test_block();
 	return 0;
 }
