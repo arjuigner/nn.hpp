@@ -82,28 +82,37 @@ nn::Mat onehot_encode(const nn::Mat& labels) {
 
 
 int main() {
+	//Load the training data.
 	const auto data = load_mnist("train-images.idx3-ubyte", "train-labels.idx1-ubyte");
 	const nn::Mat X = std::move(data.first);
 	const nn::Mat labels = std::move(data.second);
 	const nn::Mat Y = onehot_encode(labels);
 
+	//Load the testing data.
 	const auto testdata = load_mnist("t10k-images.idx3-ubyte", "t10k-labels.idx1-ubyte");
 	const nn::Mat testX = std::move(data.first);
 	const nn::Mat testlabels = std::move(data.second);
 	const nn::Mat testY = onehot_encode(labels);
-	/*
+
+	//Create and train the neural network.
 	nn::NN net({784, 32, nn::act::RELU, 10, nn::act::RELU});
-	//nn::NN net;
 	net.train_batch(X, Y, 10000, 0.1, 100);
 	net.save("testrelusmall.dat");
 
+	//Test it !
 	net.test(testX, testY);
-	//test MSE = 0.47974
-	*/
-	
+
+	//Alternatively, comment the above code and run the following code instead :
+
+	/*
+	// Load the neural network from a file.
 	nn::NN net;
 	net.load("testrelusmall.dat");
+
 	std::cout << "A few examples : " << std::endl;
+
+	//For the first 10 samples of the test dataset, 
+	//show the expected answer and what the neural network did output.
 	const nn::Mat x = testX.block(0, 0, 784, 10);
 	const nn::Mat y = testlabels.block(0, 0, 1, 10);
 	const nn::Mat pred = net(x);
@@ -112,6 +121,6 @@ int main() {
 		std::cout << "truth=" << y.at(0, i) << ", pred=" << ans.at(0, i) << std::endl;
 		std::cout << pred.block(0, i, 10, 1) << std::endl;
 	}
-	
+	*/
 	return 0;
 }
